@@ -58,4 +58,4 @@ done
 occ config:system:set trusted_domains 1 --value="*"
 
 # Rescan file system
-occ files:scan --all
+occ files:scan --all &
