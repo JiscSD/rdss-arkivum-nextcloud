@@ -1,0 +1,52 @@
+---
+version: '2'
+
+volumes:
+    # Named volume for database persistence
+    mysql_data:
+
+    # Named volumes for NextCloud persistence
+    nextcloud_apps:
+    nextcloud_config:
+    nextcloud_data:
+    nextcloud_sessions:
+    nextcloud_themes:
+
+services:
+
+    mysql:
+        image: "percona:5.6"
+        user: "mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: "12345"
+        volumes:
+            - "mysql_data:/var/lib/mysql"
+        expose:
+            - "3306"
+
+    nextcloud:
+        image: "arkivum/nextcloud"
+        build: .
+        environment:
+            ADMIN_USER: "admin"
+            ADMIN_PASSWORD: "admin"
+            DB_HOST: "mysql"
+            DB_USER: "root"
+            DB_PASSWORD: "12345"
+            DB_PORT: "3306"
+            DB_TYPE: "mysql"
+            GID: "1000"
+            UID: "1000"
+        volumes:
+            # Nextcloud persistence
+            - "nextcloud_apps:/apps2"
+            - "nextcloud_config:/config"
+            - "nextcloud_data:/data"
+            - "nextcloud_themes:/nextcloud/themes"
+            - "nextcloud_sessions:/php/session"
+        ports:
+            - "38888:8888"
+        depends_on:
+            - "mysql"
+        links:
+            - "mysql"
