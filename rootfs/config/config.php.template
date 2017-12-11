@@ -1,0 +1,81 @@
+<?php
+# NextCloud config settings
+# See https://docs.nextcloud.com/server/12/admin_manual/configuration_server/config_sample_php_parameters.html
+$CONFIG = array (
+
+  #
+  # Customizable settings - can be overridden with environment variables
+  #
+
+  # Email
+  'mail_domain' => getenv('NC_MAIL_DOMAIN') ?: 'localhost',
+  'mail_from_address' => getenv('NC_MAIL_FROM_ADDRESS') ?: 'nextcloud-noreply',
+  'mail_smtpdebug' => getenv('NC_MAIL_DEBUG_ENABLED') ?: false,
+  'mail_smtphost' => getenv('NC_MAIL_HOST') ?: 'localhost',
+  'mail_smtpname' => getenv('NC_MAIL_USER') ?: '',
+  'mail_smtppassword' => getenv('NC_MAIL_PASSWORD') ?: '',
+  'mail_smtpport' => getenv('NC_MAIL_PORT') ?: 25,
+  'mail_smtpsecure' => getenv('NC_MAIL_SECURE') ?: '',
+  'mail_smtptimeout' => getenv('NC_MAIL_TIMEOUT') ?: 10,
+
+  # Logging
+  'loglevel' => getenv('NC_LOG_LEVEL') ?: 1,
+
+  #
+  # Installed settings - you shouldn't need to change these, ever
+  #
+
+  # System
+  'instanceid' => '${NC_INSTANCE_ID}',
+  'version' => '12.0.3.3',
+  'installed' => true,
+
+  # Database
+  'dbtype' => 'mysql',
+  'dbname' => 'nextcloud',
+  'dbhost' => '${NC_DB_HOST}',
+  'dbport' => '${NC_DB_PORT}',
+  'dbtableprefix' => 'oc_',
+  'dbuser' => '${NC_DB_USER}',
+  'dbpassword' => '${NC_DB_PASSWORD_CRYPTED}',
+
+  # Caching
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+
+  # Paths
+  'datadirectory' => '/data',
+  'apps_paths' => array (
+    0 => array (
+      'path' => '/nextcloud/apps',
+      'url' => '/apps',
+      'writable' => false,
+    ),
+    1 => array (
+      'path' => '/apps2',
+      'url' => '/apps2',
+      'writable' => true,
+    ),
+  ),
+  'skeletondirectory' => '',
+
+  # Security
+  'passwordsalt' => '${NC_PASSWORD_SALT}',
+  'secret' => '${NC_SECRET}',
+  'trusted_domains' => array (
+    0 => 'localhost',
+    1 => '*',
+  ),
+
+  # Logging
+  'logtimezone' => 'Etc/UTC',
+  'logdateformat' => 'Y-m-d H:i:s',
+
+  # Email
+  'mail_smtpauthtype' => 'LOGIN',
+  'mail_smtpmode' => 'smtp',
+
+  # Miscellaneous
+  'filesystem_check_changes' => 1,
+  'overwrite.cli.url' => 'http://localhost',
+);
+?>
