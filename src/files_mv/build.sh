@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-BUILD_OWNER=${BUILD_OWNER:-$UID:$GID}
+BUILD_OWNER="${BUILD_OWNER:-$UID:$GID}"
 
 # Create the build dir, in case it doesn't already exist
 mkdir -p /build/
@@ -17,4 +17,4 @@ git clone https://github.com/eotryx/oc_files_mv.git /tmp/files_mv/ && \
 tar xzf /tmp/files_mv/build/artifacts/appstore/files_mv.tar.gz -C  /build/
 
 # Chown build output to the right owner
-chown -R $BUILD_OWNER /build/*
+chown -R "${BUILD_OWNER}" /build/*

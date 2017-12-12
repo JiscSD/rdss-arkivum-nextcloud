@@ -1,0 +1,12 @@
+---
+
+language: bash
+
+script:
+  # Validate all shell scripts
+  - find . \( -name \*.sh -or -name \*.bash \) -exec shellcheck -x -f gcc {} +
+  # TODO Add additional validation/build steps here
+
+notifications:
+  email: false
+
