@@ -38,6 +38,16 @@ In addition, the following are also supported:
 |---|---|---|
 | `DB_PORT` | Specifies the port to use to connect to the external database server. | `""` |
 | `EXTERNAL_STORAGES` | Specifies the external storage location(s) that should be added as part of the set up. See [External Storage](#external-storage) below. | `""` |
+| `NC_LOG_LEVEL` | The level to log messages for. Valid values are one of the following numbers: <ul><li>0: DEBUG - all activity, the most detailed logging</li><li>1: INFO - activity such as user logins and file activities, plus warnings, errors and fatal errors</li><li>2: WARN - operations succeed, but with warnings of potential problems, plus errors and fatal errors</li><li>3: ERROR - an operation fails, but other services and operations continue, plus fatal errors</li><li>4: FATAL - the server stops</li></ul> | `1` |
+| `NC_MAIL_DOMAIN` | The domain to use when sending mails from NextCloud. | `localhost` |
+| `NC_MAIL_FROM_ADDRESS` | The `from` address to send emails from, without the "@" or domain | `nextcloud-noreply` |
+| `NC_MAIL_DEBUG_ENABLED` | Whether or not to enable debugging for sending mail. Set to `true` to enable. |`false` |
+| `NC_MAIL_HOST` | The SMTP host to use when sending mail. | `localhost` |
+| `NC_MAIL_PASSWORD` | The SMTP password to use when sending mail. | none |
+| `NC_MAIL_PORT` | The SMTP port to use when sending mail. | `25` |
+| `NC_MAIL_SECURE` | What security mechanism to use when sending mail. Valid values are `ssl`, `tls` or none. | none |
+| `NC_MAIL_TIMEOUT` | The timeout to use when sending mail, in seconds. | `10` |
+| `NC_MAIL_USER` | The SMTP username to use when sending mail | none |
 
 External Storage
 -----------------
@@ -54,77 +64,39 @@ The above would instantitate the NextCloud container with two external storage l
 
 This image only supports the creation of "local" external storage locations during setup. If the location you wish to use is remote, mount it on the docker host using normal mount operations (e.g. `mount -t cifs`) and then use that mounted directory as the host path for the docker volume mount.
 
+If you wish to reference the external locations using Docker volumes, you can use the following command to create the volume in Docker:
+
+	docker volume create --opt type=none --opt o=bind --opt device=/home/rl/Music my_music
+	
+Do this for each external location and you can then reference them by name instead:
+
+	docker run \
+		--env EXTERNAL_STORAGES="docs:/mnt/docs music:/mnt/music" \
+		--volume my_docs:/mnt/docs \
+		--volume my_music:/mnt/music \
+		arkivum/nextcloud
+		
+Mail Settings
+--------------
+
+NextCloud occasionally needs to send an email, such as when a user shares a location with another user or requests a password reset.
+
+The `NC_MAIL_*` environment variables are used to configure the SMTP settings to allow it to do this. For example, to use Google Mail:
+
+	docker run \
+		--env NC_MAIL_DOMAIN=gmail.com" \
+		--env NC_MAIL_FROM_ADDRESS=nextcloud-test" \
+		--env NC_MAIL_HOST=smtp.gmail.com" \
+		--env NC_MAIL_PORT=587" \
+		--env NC_MAIL_SECURE=tls" \
+		--env NC_MAIL_USER=nextcloud-test@gmail.com" \
+		--env NC_MAIL_PASSWORD=supersecret" \
+		arkivum/nextcloud
+
+Note that unauthenticated mail sending is not supported, so you must always specify the `NC_MAIL_USER` and `NC_MAIL_PASSWORD` for NextCloud to be able to send any mail messages.
+
 Usage with Docker Compose
 --------------------------
 
-An example Docker Compose config for this image is as follows:
+An example Docker Compose config for this image is [provided here](docker-compose.yml), which configures NextCloud to use the provided MySQL service. This is useful for development and testing purposes.
 
-	version: '2'
-	
-	volumes:
-		# Named volume for database persistence
-		mysql_data:
-	
-		# Named volumes for NextCloud persistence
-		nextcloud_apps:
-		nextcloud_config:
-		nextcloud_data:
-		nextcloud_sessions:
-		nextcloud_themes:
-		
-		# External storage locations
-		my_docs:
-			external: true
-		my_music:
-			external: true
-	
-	services:
-	
-		mysql:
-			image: "percona:5.6"
-			user: "mysql"
-			environment:
-				MYSQL_ROOT_PASSWORD: "12345"
-			volumes:
-				- "mysql_data:/var/lib/mysql"
-			expose:
-				- "3306"
-	
-		nextcloud:
-			image: "arkivum/nextcloud"
-			environment:
-				ADMIN_USER: "admin"
-				ADMIN_PASSWORD: "adminpassword"
-				DB_HOST: "mysql"
-				DB_USER: "root"
-				DB_PASSWORD: "12345"
-				DB_PORT: "3306"
-				DB_TYPE: "mysql"
-				GID: "1000"
-				UID: "1000"
-				EXTERNAL_STORAGES: "docs:/mnt/docs music:/mnt/music"
-			volumes:
-				# Nextcloud persistence
-				- "nextcloud_apps:/apps2"
-				- "nextcloud_config:/config"
-				- "nextcloud_data:/data"
-				- "nextcloud_themes:/nextcloud/themes"
-				- "nextcloud_sessions:/php/session"
-				# External storage
-				- "my_docs:/mnt/docs"
-				- "my_music:/mnt/music"
-			ports:
-				- "8888:8888"
-			depends_on:
-				- "mysql"
-			links:
-				- "mysql"
-
-This configures NextCloud to use the provided MySQL service, and defines two external storage locations, `docs` and `music`, mapped to the `my_docs` and `my_music` named volumes.
-
-Notice that the `my_docs` and `my_music` volumes are declared as `external`, meaning Docker Compose won't create them automatically. We therefore need to create these ourselves:
-
-	docker volume create --opt type=none --opt o=bind --opt device=/home/rl/Documents my_docs
-	docker volume create --opt type=none --opt o=bind --opt device=/home/rl/Music my_music
-
-Using `docker volume` in this way means we can use normal mount operations to create the directory path we use to create the volume.
