@@ -7,12 +7,13 @@ RUN curl -sLo /usr/local/bin/ep \
     https://github.com/kreuzwerker/envplate/releases/download/v0.0.8/ep-linux \
     && chmod +x /usr/local/bin/ep
 
+# Use FIFOs to log from apps
+RUN mkfifo /nginx/logs/access.log && \
+    mkfifo /nginx/logs/error.log && \
+    mkfifo /php/logs/error.log
+
 # Copy the files_mv app to NextCloud
 COPY build/files_mv /nextcloud/apps/files_mv
-
-# Redirect NextCloud logs to stdout
-RUN rm -f /var/log/nextcloud.log && \
-	ln -s /dev/stdout /var/log/nextcloud.log
 
 # Copy our rootfs
 COPY rootfs /

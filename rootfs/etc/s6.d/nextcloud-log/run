@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Output the content of the nextcloud log and then truncate it. This is a poor
+# simulation of a FIFO, which doesn't seem to want to work for NextCloud.
+# TODO This should be sent to stderr, not stdout
+# TODO Fix this to not be so hacky
+cat /var/lib/nextcloud/data/nextcloud.log && \
+    truncate -s 0 /var/lib/nextcloud/data/nextcloud.log
