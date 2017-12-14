@@ -40,10 +40,10 @@ $CONFIG = array (
   'dbpassword' => '${NC_DB_PASSWORD_CRYPTED}',
 
   # Caching
-  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'memcache.local' => '\OC\Memcache\APCu',
 
   # Paths
-  'datadirectory' => '/data',
+  'datadirectory' => '/var/lib/nextcloud/data',
   'apps_paths' => array (
     0 => array (
       'path' => '/nextcloud/apps',
@@ -51,7 +51,7 @@ $CONFIG = array (
       'writable' => false,
     ),
     1 => array (
-      'path' => '/apps2',
+      'path' => '/var/lib/nextcloud/apps2',
       'url' => '/apps2',
       'writable' => true,
     ),

@@ -17,11 +17,15 @@ RUN rm -f /var/log/nextcloud.log && \
 # Copy our rootfs
 COPY rootfs /
 
-# Replace the default run.sh with our own
-RUN mv /usr/local/bin/run.sh /usr/local/bin/base-run.sh && \
-    ln -s /usr/local/bin/arkivum-run.sh /usr/local/bin/run.sh
-
 # Replace the default setup.sh with our own
-RUN mv /usr/local/bin/setup.sh /usr/local/bin/base-setup.sh && \
+RUN mv /usr/local/bin/setup.sh /usr/local/bin/installer.sh && \
     ln -s /usr/local/bin/arkivum-setup.sh /usr/local/bin/setup.sh
 
+# Upstream image has too many volume mounts, so use a single one and change the
+# installer to use our location instead
+VOLUME /var/lib/nextcloud
+RUN sed -i -r \
+    -e 's#(\W)/config#\1/var/lib/nextcloud/config#' \
+    -e 's#(\W)/data#\1/var/lib/nextcloud/data#' \
+    -e 's#path([^/]+)/apps2#path\1/var/lib/nextcloud/apps2#' \
+    /usr/local/bin/installer.sh

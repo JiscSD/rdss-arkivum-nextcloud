@@ -2,14 +2,9 @@
 version: '2'
 
 volumes:
-    # Named volume for database persistence
+    # Named volumes - these should be external in a production deployment
     mysql_data:
-
-    # Named volumes for NextCloud persistence
-    nextcloud_apps:
-    nextcloud_config:
     nextcloud_data:
-    nextcloud_sessions:
     nextcloud_themes:
 
 services:
@@ -38,12 +33,8 @@ services:
             GID: "1000"
             UID: "1000"
         volumes:
-            # Nextcloud persistence
-            - "nextcloud_apps:/apps2"
-            - "nextcloud_config:/config"
-            - "nextcloud_data:/data"
+            - "nextcloud_data:/var/lib/nextcloud"
             - "nextcloud_themes:/nextcloud/themes"
-            - "nextcloud_sessions:/php/session"
         ports:
             - "38888:8888"
         depends_on:

@@ -15,17 +15,17 @@ EXTERNAL_STORAGES="${EXTERNAL_STORAGES}"
 export ADMIN_USER="${ADMIN_USER:-'admin'}"
 export ADMIN_PASSWORD="${ADMIN_PASSWORD:-'admin'}"
 
-# Edit base setup script to use DB_PORT for dbport value
-cp '/usr/local/bin/base-setup.sh' '/usr/local/bin/base-setup.sh.orig' && \
-< '/usr/local/bin/base-setup.sh.orig' \
+# Edit installer script to use DB_PORT for dbport value
+cp '/usr/local/bin/installer.sh' '/usr/local/bin/installer.sh.orig' && \
+< '/usr/local/bin/installer.sh.orig' \
     tr '\n' '\r' | \
     sed "s|EOF\\rif \\[|  'dbport'        => '\${DB_PORT}',\\rEOF\\rif \\[|" | \
-    tr '\r' '\n' > '/usr/local/bin/base-setup.sh'
+    tr '\r' '\n' > '/usr/local/bin/installer.sh'
 
 # Base install runs auto-install in background. but we want it in foreground so
 # we know when it's finished.
 sed -i 's#php index.php &>/dev/null#php index.php#' \
-    '/usr/local/bin/base-setup.sh'
+    '/usr/local/bin/installer.sh'
 
 # Wait for database server to be ready, if necessary
 if [ "${DB_TYPE}" != "sqlite3" ] ; then
@@ -37,14 +37,21 @@ fi
 
 # STAGE 2: INSTALL #############################################################
 
-# Do the base setup
-/usr/local/bin/base-setup.sh
+# Do the base install
+/usr/local/bin/installer.sh
 
 # STAGE 3: POST-INSTALL CONFIG #################################################
 
+
+# Copy the apps and data dirs to the persisted data location
+cp -pr /apps2 /var/lib/nextcloud/ && \
+    cp -pr /data /var/lib/nextcloud/ && \
+    chown -R nextcloud:nextcloud /var/lib/nextcloud
+
 # Create a backup of the default config
-[ -f /config/config.php.default ] || \
-    cp -p /config/config.php /config/config.php.default
+[ -f /var/lib/nextcloud/config/config.php.default ] || \
+    cp -p /var/lib/nextcloud/config/config.php \
+        /var/lib/nextcloud/config/config.php.default
 
 #
 # Replace the default config with our own templated config, keeping any
@@ -54,22 +61,23 @@ fi
 # Capture existing values from the existing config
 # shellcheck disable=SC2016
 instance_id="$(php -r \
-    'include "/config/config.php"; echo $CONFIG["instanceid"];')"
+    'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["instanceid"];')"
 # shellcheck disable=SC2016
 db_user="$(php -r \
-    'include "/config/config.php"; echo $CONFIG["dbuser"];')"
+    'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["dbuser"];')"
 # shellcheck disable=SC2016
 db_password_crypted="$(php -r \
-    'include "/config/config.php"; echo $CONFIG["dbpassword"];')"
+    'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["dbpassword"];')"
 # shellcheck disable=SC2016
 password_salt="$(php -r \
-    'include "/config/config.php"; echo $CONFIG["passwordsalt"];')"
+    'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["passwordsalt"];')"
 # shellcheck disable=SC2016
 secret="$(php -r \
-    'include "/config/config.php"; echo $CONFIG["secret"];')"
+    'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["secret"];')"
 
 # Use EnvPlate to process our template and replace the existing config
-cp -p /config/config.php.template /config/config.php.new
+cp -p /nextcloud/config/config.php.template \
+    /var/lib/nextcloud/config/config.php.new
 NC_DB_HOST="${DB_HOST}" \
 NC_DB_PORT="${DB_PORT}" \
 NC_DB_USER="${db_user}" \
@@ -77,8 +85,8 @@ NC_DB_PASSWORD_CRYPTED="${db_password_crypted}" \
 NC_INSTANCE_ID="${instance_id}" \
 NC_PASSWORD_SALT="${password_salt}" \
 NC_SECRET="${secret}" \
-    ep /config/config.php.new && \
-    mv /config/config.php.new /config/config.php
+    ep /var/lib/nextcloud/config/config.php.new && \
+    mv /var/lib/nextcloud/config/config.php.new /var/lib/nextcloud/config/config.php
 
 # STAGE 4: POST-CONFIG BOOTSTRAP ###############################################
 
@@ -90,8 +98,8 @@ occ "app:enable files_mv"
 
 # Create requested external storage locations
 for storage in ${EXTERNAL_STORAGES} ; do
-    storage_name=$(echo "${storage}" | cut -d: -f1)
-    storage_dir=$(echo "${storage}" | cut -d: -f2)
+    storage_name="$(echo "${storage}" | cut -d: -f1)"
+    storage_dir="$(echo "${storage}" | cut -d: -f2)"
     occ files_external:create \
         --config datadir="${storage_dir}" \
         "${storage_name}" \
