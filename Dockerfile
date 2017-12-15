@@ -14,10 +14,14 @@ COPY build/files_mv /nextcloud/apps/files_mv
 RUN rm -f /var/log/nextcloud.log && \
 	ln -s /dev/stdout /var/log/nextcloud.log
 
+# Copy our rootfs
+COPY rootfs /
+
+# Replace the default run.sh with our own
+RUN mv /usr/local/bin/run.sh /usr/local/bin/base-run.sh && \
+    ln -s /usr/local/bin/arkivum-run.sh /usr/local/bin/run.sh
+
 # Replace the default setup.sh with our own
-COPY rootfs/usr/local/bin/arkivum-setup.sh /usr/local/bin/arkivum-setup.sh
 RUN mv /usr/local/bin/setup.sh /usr/local/bin/base-setup.sh && \
     ln -s /usr/local/bin/arkivum-setup.sh /usr/local/bin/setup.sh
 
-# Copy our config template
-COPY rootfs/config/config.php.template /config/config.php.template
