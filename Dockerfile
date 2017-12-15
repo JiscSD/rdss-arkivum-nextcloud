@@ -12,6 +12,9 @@ RUN mkfifo /nginx/logs/access.log && \
     mkfifo /nginx/logs/error.log && \
     mkfifo /php/logs/error.log
 
+# Enable APCu (see https://github.com/Wonderfall/dockerfiles/issues/197)
+RUN echo "apc.enable_cli=1" >> /php/conf.d/apcu.ini
+
 # Copy the files_mv app to NextCloud
 COPY build/files_mv /nextcloud/apps/files_mv
 

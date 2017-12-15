@@ -19,6 +19,13 @@ services:
         expose:
             - "3306"
 
+    redis:
+        image: "redis:3.2-alpine"
+        command: '--save "" --appendonly no'  # Persistency disabled
+        user: "redis"
+        expose:
+          - "6379"
+
     nextcloud:
         image: "arkivum/nextcloud"
         build: .
@@ -39,5 +46,7 @@ services:
             - "38888:8888"
         depends_on:
             - "mysql"
+            - "redis"
         links:
             - "mysql"
+            - "redis"
