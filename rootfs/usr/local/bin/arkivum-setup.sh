@@ -19,6 +19,7 @@ export ADMIN_PASSWORD="${ADMIN_PASSWORD:-'admin'}"
 cp '/usr/local/bin/installer.sh' '/usr/local/bin/installer.sh.orig' && \
 < '/usr/local/bin/installer.sh.orig' \
     tr '\n' '\r' | \
+    sed -r "s|'memcache|'skeletondirectory' => '',\\n'memcache|" | \
     sed "s|EOF\\rif \\[|  'dbport'        => '\${DB_PORT}',\\rEOF\\rif \\[|" | \
     tr '\r' '\n' > '/usr/local/bin/installer.sh'
 
