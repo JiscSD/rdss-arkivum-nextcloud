@@ -12,6 +12,12 @@ $CONFIG = array (
   'dbhost' => getenv('DB_HOST') ?: 'mysql',
   'dbport' => getenv('DB_PORT') ?: 3306,
 
+  # Caching
+  'redis' => array(
+    'host' => getenv('REDIS_HOST') ?: 'redis',
+    'port' => getenv('REDIS_PORT') ?: 6379,
+  ),
+
   # Email
   'mail_domain' => getenv('NC_MAIL_DOMAIN') ?: 'localhost',
   'mail_from_address' => getenv('NC_MAIL_FROM_ADDRESS') ?: 'nextcloud-noreply',
@@ -45,10 +51,6 @@ $CONFIG = array (
   'memcache.local' => '\OC\Memcache\APCu',
   'memcache.distributed' => '\OC\Memcache\Redis',
   'memcache.locking' => '\OC\Memcache\Redis',
-  'redis' => array(
-    'host' => 'redis',
-    'port' => 6379,
-  ),
 
   # Paths
   'datadirectory' => '/var/lib/nextcloud/data',

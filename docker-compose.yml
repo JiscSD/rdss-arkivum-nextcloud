@@ -39,6 +39,8 @@ services:
             DB_PORT: "3306"
             DB_TYPE: "mysql"
             GID: "1000"
+            REDIS_HOST: "redis"
+            REDIS_PORT: "6379"
             UID: "1000"
         volumes:
             - "nextcloud_data:/var/lib/nextcloud"

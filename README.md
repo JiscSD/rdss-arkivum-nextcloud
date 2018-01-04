@@ -48,6 +48,8 @@ In addition, the following are also supported:
 | `NC_MAIL_SECURE` | What security mechanism to use when sending mail. Valid values are `ssl`, `tls` or none. | none |
 | `NC_MAIL_TIMEOUT` | The timeout to use when sending mail, in seconds. | `10` |
 | `NC_MAIL_USER` | The SMTP username to use when sending mail | none |
+| `REDIS_HOST` | The hostname of the Redis server to use for caching. |
+| `REDIS_PORT` | The port of the Redis server to use for caching. |
 
 External Storage
 -----------------
@@ -75,7 +77,7 @@ Do this for each external location and you can then reference them by name inste
 		--volume my_docs:/mnt/docs \
 		--volume my_music:/mnt/music \
 		arkivum/nextcloud
-		
+
 Mail Settings
 --------------
 
@@ -94,6 +96,18 @@ The `NC_MAIL_*` environment variables are used to configure the SMTP settings to
 		arkivum/nextcloud
 
 Note that unauthenticated mail sending is not supported, so you must always specify the `NC_MAIL_USER` and `NC_MAIL_PASSWORD` for NextCloud to be able to send any mail messages.
+
+Redis Settings
+---------------
+
+NextCloud is configured to use Redis for caching to improve perfomance. To configure the hostname and port to use for the Redis server, use the `REDIS_HOST` and `REDIS_PORT` environment variables:
+
+	docker-run \
+		--env REDIS_HOST=redis-master \
+		--env REDIS_PORT=6380 \
+		arkivum/nextcloud
+
+Although NextCloud supports it, it is not currently possible to specify more than one host for NextCloud to connect to. This is on the assumption that any clustering will be done behind a single DNS hostname, so is better handled at the infrastructure layer than in the application.
 
 Usage with Docker Compose
 --------------------------
