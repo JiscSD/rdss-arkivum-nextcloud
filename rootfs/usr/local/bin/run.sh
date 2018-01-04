@@ -40,11 +40,24 @@ for dir in /nextcloud /var/lib/nextcloud /php /nginx /tmp /etc/s6.d; do
 done
 echo "Done updating permissions."
 
-if [ ! -f /var/lib/nextcloud/config/config.php ]; then
+config_file="/var/lib/nextcloud/config/config.php"
+config_file_md5="${config_file}.template.md5"
+if [ ! -f "${config_file}" ]; then
     # New installation, run the setup
     /usr/local/bin/setup.sh
 else
+    # Check if the checksum of the config template has changed
+    if ! md5sum -cs "${config_file_md5}" 2>/dev/null ; then
+        # Config template has changed, take backup of existing config
+        cp "${config_file}" "${config_file}.$(date --utc +"%Y%m%d%H%M%S")"
+        # Re-run the config script
+        echo "Configuration template changed, updating config..."
+        /usr/local/bin/arkivum-config.sh
+    fi
+    # Run any upgrade tasks for NextCloud
     occ upgrade
 fi
+# Record the checksum of the config template for next time
+md5sum "/nextcloud/config/config.php.template" > "${config_file_md5}"
 
 exec su-exec "${UID}:${GID}" /bin/s6-svscan /etc/s6.d
