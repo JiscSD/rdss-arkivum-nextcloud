@@ -36,7 +36,7 @@ In addition, the following are also supported:
 
 | Variable | Description | Default Value |
 |---|---|---|
-| `DB_PORT` | Specifies the port to use to connect to the external database server. | `""` |
+| `DB_PORT` | Specifies the port to use to connect to the MySQL database server. | `3306` |
 | `EXTERNAL_STORAGES` | Specifies the external storage location(s) that should be added as part of the set up. See [External Storage](#external-storage) below. | `""` |
 | `NC_LOG_LEVEL` | The level to log messages for. Valid values are one of the following numbers: <ul><li>0: DEBUG - all activity, the most detailed logging</li><li>1: INFO - activity such as user logins and file activities, plus warnings, errors and fatal errors</li><li>2: WARN - operations succeed, but with warnings of potential problems, plus errors and fatal errors</li><li>3: ERROR - an operation fails, but other services and operations continue, plus fatal errors</li><li>4: FATAL - the server stops</li></ul> | `1` |
 | `NC_MAIL_DOMAIN` | The domain to use when sending mails from NextCloud. | `localhost` |

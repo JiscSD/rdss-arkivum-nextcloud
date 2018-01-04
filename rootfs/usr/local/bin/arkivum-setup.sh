@@ -79,8 +79,6 @@ secret="$(php -r \
 # Use EnvPlate to process our template and replace the existing config
 cp -p /nextcloud/config/config.php.template \
     /var/lib/nextcloud/config/config.php.new
-NC_DB_HOST="${DB_HOST}" \
-NC_DB_PORT="${DB_PORT}" \
 NC_DB_USER="${db_user}" \
 NC_DB_PASSWORD_CRYPTED="${db_password_crypted}" \
 NC_INSTANCE_ID="${instance_id}" \

@@ -7,6 +7,11 @@ $CONFIG = array (
   # Customizable settings - can be overridden with environment variables
   #
 
+  # Database
+  'dbname' => getenv('DB_NAME') ?: 'nextcloud',
+  'dbhost' => getenv('DB_HOST') ?: 'mysql',
+  'dbport' => getenv('DB_PORT') ?: 3306,
+
   # Email
   'mail_domain' => getenv('NC_MAIL_DOMAIN') ?: 'localhost',
   'mail_from_address' => getenv('NC_MAIL_FROM_ADDRESS') ?: 'nextcloud-noreply',
@@ -32,9 +37,6 @@ $CONFIG = array (
 
   # Database
   'dbtype' => 'mysql',
-  'dbname' => 'nextcloud',
-  'dbhost' => '${NC_DB_HOST}',
-  'dbport' => '${NC_DB_PORT}',
   'dbtableprefix' => 'oc_',
   'dbuser' => '${NC_DB_USER}',
   'dbpassword' => '${NC_DB_PASSWORD_CRYPTED}',

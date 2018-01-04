@@ -33,6 +33,7 @@ services:
             ADMIN_USER: "admin"
             ADMIN_PASSWORD: "admin"
             DB_HOST: "mysql"
+            DB_NAME: "nextcloud"
             DB_USER: "root"
             DB_PASSWORD: "12345"
             DB_PORT: "3306"
