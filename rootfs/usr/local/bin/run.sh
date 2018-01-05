@@ -60,4 +60,8 @@ fi
 # Record the checksum of the config template for next time
 md5sum "/nextcloud/config/config.php.template" > "${config_file_md5}"
 
+# Disables the "deleted files app"
+
+occ app:disable files_trashbin
+
 exec su-exec "${UID}:${GID}" /bin/s6-svscan /etc/s6.d
