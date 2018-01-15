@@ -19,6 +19,10 @@ sed -i -e "s/<APC_SHM_SIZE>/$APC_SHM_SIZE/g" /php/conf.d/apcu.ini \
            /nginx/conf/nginx.conf /php/etc/php-fpm.conf \
        -e "s/<MEMORY_LIMIT>/$MEMORY_LIMIT/g" /php/etc/php-fpm.conf
 
+# Allow PHP-FPM processes to access environment variables without explicitly
+# naming them
+echo "clear_env = no" >> /php/etc/php-fpm.conf
+
 # Change the config file to be on the persisted data location
 ln -sf /var/lib/nextcloud/config/config.php /nextcloud/config/config.php
 
