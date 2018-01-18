@@ -41,6 +41,9 @@ $CONFIG = array (
   'version' => '12.0.3.3',
   'installed' => true,
 
+  # Update checks - we want to disable these (use new Docker image to upgrade)
+  'updatechecker' => false,
+
   # Database
   'dbtype' => 'mysql',
   'dbtableprefix' => 'oc_',
