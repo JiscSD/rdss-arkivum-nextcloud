@@ -66,10 +66,10 @@ cp -pr /apps2 /var/lib/nextcloud/ && \
 occ upgrade
 
 # Enable 'External Storage' plugin
-occ "app:enable files_external"
+occ app:enable files_external
 
 # Enable 'Files Move' plugin
-occ "app:enable files_mv"
+occ app:enable files_mv
 
 # Create requested external storage locations
 for storage in ${EXTERNAL_STORAGES} ; do
