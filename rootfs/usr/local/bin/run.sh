@@ -44,19 +44,34 @@ for dir in /nextcloud /var/lib/nextcloud /php /nginx /tmp /etc/s6.d; do
 done
 echo "Done updating permissions."
 
+# Read current NextCloud version and store in version file
+nc_version="$(grep 'OC_Version = ' /nextcloud/version.php | sed -r 's#.+\(([0-9,]+)\).+#\1#' | tr ',' '.')"
+echo "${nc_version}" > /var/lib/nextcloud/config/version
+
 config_file="/var/lib/nextcloud/config/config.php"
 config_file_md5="${config_file}.template.md5"
 if [ ! -f "${config_file}" ]; then
     # New installation, run the setup
     /usr/local/bin/setup.sh
 else
-    # Check if the checksum of the config template has changed
-    if ! md5sum -cs "${config_file_md5}" 2>/dev/null ; then
-        # Config template has changed, take backup of existing config
+    # No need to run setup but do we need to update the config?
+    update_config=0
+    # Check if the installed version of NextCloud has changed
+    # shellcheck disable=SC2016
+    conf_version="$(php -r \
+        'include "/var/lib/nextcloud/config/config.php"; echo $CONFIG["version"];')"
+    if [ "$nc_version" != "$conf_version" ] ; then
+        echo "Nextcloud version ${nc_version} doesn't match config version ${conf_version}, updating config..."
+        update_config=1
+    elif ! md5sum -cs "${config_file_md5}" 2>/dev/null ; then
+        echo "Configuration template changed, updating config..."
+        update_config=1
+    fi
+    if [ $update_config -eq 1 ] ; then
+        # Take backup of existing config
         cp "${config_file}" "${config_file}.$(date --utc +"%Y%m%d%H%M%S")"
         # Re-run the config script
-        echo "Configuration template changed, updating config..."
-        /usr/local/bin/arkivum-config.sh
+       /usr/local/bin/arkivum-config.sh
     fi
     # Run any upgrade tasks for NextCloud
     occ upgrade
@@ -65,7 +80,6 @@ fi
 md5sum "/nextcloud/config/config.php.template" > "${config_file_md5}"
 
 # Disables the "deleted files app"
-
 occ app:disable files_trashbin
 
 exec su-exec "${UID}:${GID}" /bin/s6-svscan /etc/s6.d

@@ -5,6 +5,9 @@
 # auto-generated values like instance id and password salt etc.
 #
 
+# Read installed nextcloud version from our version file
+nc_version=$(cat /var/lib/nextcloud/config/version)
+
 # Capture existing values from the existing config
 # shellcheck disable=SC2016
 instance_id="$(php -r \
@@ -27,6 +30,7 @@ cp -p /nextcloud/config/config.php.template \
     /var/lib/nextcloud/config/config.php.new
 NC_DB_USER="${db_user}" \
 NC_DB_PASSWORD_CRYPTED="${db_password_crypted}" \
+NC_INSTALLED_VERSION="${nc_version}" \
 NC_INSTANCE_ID="${instance_id}" \
 NC_PASSWORD_SALT="${password_salt}" \
 NC_SECRET="${secret}" \
