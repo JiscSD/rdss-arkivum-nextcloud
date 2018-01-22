@@ -38,8 +38,12 @@ $CONFIG = array (
 
   # System
   'instanceid' => '${NC_INSTANCE_ID}',
-  'version' => '12.0.3.3',
+  'version' => '${NC_INSTALLED_VERSION}',
   'installed' => true,
+
+  # Update checks - we want to disable these (redeploy container to update)
+  'updatechecker' => false,
+  'has_internet_connection' => false,
 
   # Database
   'dbtype' => 'mysql',
