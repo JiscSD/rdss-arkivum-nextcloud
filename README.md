@@ -48,8 +48,10 @@ In addition, the following are also supported:
 | `NC_MAIL_SECURE` | What security mechanism to use when sending mail. Valid values are `ssl`, `tls` or none. | none |
 | `NC_MAIL_TIMEOUT` | The timeout to use when sending mail, in seconds. | `10` |
 | `NC_MAIL_USER` | The SMTP username to use when sending mail | none |
-| `REDIS_HOST` | The hostname of the Redis server to use for caching. |
-| `REDIS_PORT` | The port of the Redis server to use for caching. |
+| `NC_PROXY_HOSTNAME` | Overrides NextCloud's own detection of what its hostname is. Use if using a proxy and you're not getting the right URLs. | `''` |
+| `NC_PROXY_PROTOCOL` | Overrides NextCloud's own detection of what scheme it should use. Set to `https` if proxying NextCloud behind a HTTPS server. | `http` |
+| `REDIS_HOST` | The hostname of the Redis server to use for caching. | `redis` |
+| `REDIS_PORT` | The port of the Redis server to use for caching. | `6379` |
 
 External Storage
 -----------------

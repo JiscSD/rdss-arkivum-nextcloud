@@ -32,6 +32,10 @@ $CONFIG = array (
   # Logging
   'loglevel' => getenv('NC_LOG_LEVEL') ?: 1,
 
+  # Proxy overwrite
+  'overwritehost' => getenv('NC_PROXY_HOSTNAME') ?: '',
+  'overwriteprotocol' => getenv('NC_PROXY_PROTOCOL') ?: 'http',
+
   #
   # Installed settings - you shouldn't need to change these, ever
   #
