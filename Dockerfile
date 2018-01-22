@@ -1,4 +1,4 @@
-FROM wonderfall/nextcloud@sha256:77ddb0674be1c623457ad101a29b0a396e731d831fbd0154417b8dc7e505c225
+FROM wonderfall/nextcloud
 
 MAINTAINER Arkivum Limited
 
