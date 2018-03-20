@@ -1,36 +1,82 @@
-FROM wonderfall/nextcloud
 
-MAINTAINER Arkivum Limited
+# Use upstream Alpine with NGINX and PHP-FPM image
+FROM boxedcode/alpine-nginx-php-fpm:v1.7.2
+
+#
+# Fetch and build NextCloud
+#
+
+ARG NEXTCLOUD_VERSION=12.0.6
+ARG GPG_nextcloud="2880 6A87 8AE4 23A2 8372  792E D758 99B9 A724 937A"
+
+ENV UID=991 GID=991 \
+    UPLOAD_MAX_SIZE=10G \
+    APC_SHM_SIZE=128M \
+    OPCACHE_MEM_SIZE=128 \
+    MEMORY_LIMIT=512M \
+    CRON_PERIOD=15m \
+    CRON_MEMORY_LIMIT=1g \
+    TZ=Etc/UTC \
+    DB_TYPE=sqlite3 \
+    DOMAIN=localhost
+
+RUN apk -U upgrade \
+ && apk add -t build-dependencies \
+    gnupg \
+    tar \
+    build-base \
+    autoconf \
+    automake \
+    pcre-dev \
+    libtool \
+    samba-dev \
+ && apk add \
+    libressl \
+    ca-certificates \
+    libsmbclient \
+    sudo \
+    tzdata \
+ && pecl install \
+    smbclient \
+    apcu \
+    redis \
+ && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/apcu.so /usr/lib/php/modules/ \
+ && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/redis.so /usr/lib/php/modules/ \
+ && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/smbclient.so /usr/lib/php/modules/ \
+ && rm -f /usr/etc/php-fpm.d/* \
+ && mkdir /nextcloud \
+ && cd /tmp \
+ && NEXTCLOUD_TARBALL="nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
+ && wget -q https://download.nextcloud.com/server/releases/${NEXTCLOUD_TARBALL} \
+ && wget -q https://download.nextcloud.com/server/releases/${NEXTCLOUD_TARBALL}.sha512 \
+ && wget -q https://download.nextcloud.com/server/releases/${NEXTCLOUD_TARBALL}.asc \
+ && wget -q https://nextcloud.com/nextcloud.asc \
+ && echo "Verifying both integrity and authenticity of ${NEXTCLOUD_TARBALL}..." \
+ && CHECKSUM_STATE=$(echo -n $(sha512sum -c ${NEXTCLOUD_TARBALL}.sha512) | tail -c 2) \
+ && if [ "${CHECKSUM_STATE}" != "OK" ]; then echo "Warning! Checksum does not match!" && exit 1; fi \
+ && gpg --import nextcloud.asc \
+ && FINGERPRINT="$(LANG=C gpg --verify ${NEXTCLOUD_TARBALL}.asc ${NEXTCLOUD_TARBALL} 2>&1 \
+  | sed -n "s#Primary key fingerprint: \(.*\)#\1#p")" \
+ && if [ -z "${FINGERPRINT}" ]; then echo "Warning! Invalid GPG signature!" && exit 1; fi \
+ && if [ "${FINGERPRINT}" != "${GPG_nextcloud}" ]; then echo "Warning! Wrong GPG fingerprint!" && exit 1; fi \
+ && echo "All seems good, now unpacking ${NEXTCLOUD_TARBALL}..." \
+ && tar xjf ${NEXTCLOUD_TARBALL} --strip 1 -C /nextcloud \
+ && update-ca-certificates \
+ && apk del build-dependencies \
+ && rm -rf /var/cache/apk/* /tmp/* /root/.gnupg \
+ && wget -q -O /usr/local/bin/ep https://github.com/kreuzwerker/envplate/releases/download/v0.0.8/ep-linux \
+ && chmod +x /usr/local/bin/ep
+
+COPY rootfs /
 
 # Copy the files_mv app to NextCloud
 COPY build/files_mv /nextcloud/apps/files_mv
 
-# Copy our rootfs
-COPY rootfs /
+VOLUME /nextcloud/themes /var/lib/nextcloud
 
-# Upstream image has too many volume mounts, so use a single one and change the
-# installer to use our location instead
-VOLUME /var/lib/nextcloud
+EXPOSE 8888
 
-# Run commands to...
-# 1) Use EnvPlate for templating
-# 2) Use FIFOs to log from apps
-# 3) Enable APCu (see https://github.com/Wonderfall/dockerfiles/issues/197)
-# 4) Allow PHP-FPM processes to access environment variables
-# 5) Replace default setup.sh with our own
-# 6) Change installer to use different volume
-RUN curl -sLo /usr/local/bin/ep \
-        https://github.com/kreuzwerker/envplate/releases/download/v0.0.8/ep-linux && \
-    chmod +x /usr/local/bin/ep && \
-    mkfifo /nginx/logs/access.log && \
-    mkfifo /nginx/logs/error.log && \
-    mkfifo /php/logs/error.log && \
-    echo "apc.enable_cli=1" >> /php/conf.d/apcu.ini && \
-    echo "clear_env=no" >> /php/etc/php-fpm.conf && \
-    mv /usr/local/bin/setup.sh /usr/local/bin/installer.sh && \
-    ln -s /usr/local/bin/arkivum-setup.sh /usr/local/bin/setup.sh && \
-    sed -i -r \
-        -e 's#(\W)/config#\1/var/lib/nextcloud/config#' \
-        -e 's#(\W)/data#\1/var/lib/nextcloud/data#' \
-        -e 's#path([^/]+)/apps2#path\1/var/lib/nextcloud/apps2#' \
-        /usr/local/bin/installer.sh
+LABEL description="A server software for creating file hosting services" \
+      nextcloud="Nextcloud v${NEXTCLOUD_VERSION}" \
+      maintainer="Arkivum Limited"
+

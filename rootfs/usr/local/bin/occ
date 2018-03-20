@@ -1,0 +1,1 @@
+sudo -u nextcloud php -d memory_limit=<MEMORY_LIMIT> -f /nextcloud/occ "$@"

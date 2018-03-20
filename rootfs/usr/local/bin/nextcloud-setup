@@ -11,23 +11,6 @@ EXTERNAL_STORAGES="${EXTERNAL_STORAGES}"
 
 # STAGE 1: PRE-INSTALL #########################################################
 
-# Fill in minimial config params if they're missing
-export ADMIN_USER="${ADMIN_USER:-'admin'}"
-export ADMIN_PASSWORD="${ADMIN_PASSWORD:-'admin'}"
-
-# Edit installer script to use DB_PORT for dbport value
-cp '/usr/local/bin/installer.sh' '/usr/local/bin/installer.sh.orig' && \
-< '/usr/local/bin/installer.sh.orig' \
-    tr '\n' '\r' | \
-    sed -r "s|'memcache|'skeletondirectory' => '',\\n'memcache|" | \
-    sed "s|EOF\\rif \\[|  'dbport'        => '\${DB_PORT}',\\rEOF\\rif \\[|" | \
-    tr '\r' '\n' > '/usr/local/bin/installer.sh'
-
-# Base install runs auto-install in background. but we want it in foreground so
-# we know when it's finished.
-sed -i 's#php index.php &>/dev/null#php index.php#' \
-    '/usr/local/bin/installer.sh'
-
 # Wait for database server to be ready, if necessary
 if [ "${DB_TYPE}" != "sqlite3" ] ; then
     while [ "$(nc -z "${DB_HOST}" "${DB_PORT}" ; echo "$?")" -ne 0 ] ; do
@@ -39,15 +22,10 @@ fi
 # STAGE 2: INSTALL #############################################################
 
 # Do the base install
-/usr/local/bin/installer.sh
+/usr/local/bin/nextcloud-install
 
 # STAGE 3: POST-INSTALL CONFIG #################################################
 
-
-# Copy the apps and data dirs to the persisted data location
-cp -pr /apps2 /var/lib/nextcloud/ && \
-    cp -pr /data /var/lib/nextcloud/ && \
-    chown -R nextcloud:nextcloud /var/lib/nextcloud
 
 # Create a backup of the default config
 [ -f /var/lib/nextcloud/config/config.php.default ] || \
@@ -58,7 +36,7 @@ cp -pr /apps2 /var/lib/nextcloud/ && \
 # Replace the default config with our own templated config, keeping any
 # auto-generated values like instance id and password salt etc.
 #
-/usr/local/bin/arkivum-config.sh
+/usr/local/bin/nextcloud-config
 
 # STAGE 4: POST-CONFIG BOOTSTRAP ###############################################
 

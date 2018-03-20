@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# Output the content from the (FIFO) nginx error log
-# TODO This should be sent to stderr, not stdout
-cat /nginx/logs/error.log

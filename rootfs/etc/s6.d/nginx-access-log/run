@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Output the content from the (FIFO) nginx access log
-cat /nginx/logs/access.log
