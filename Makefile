@@ -7,7 +7,9 @@ IMAGE_TAG_VERSION ?= "latest"
 
 all: validate clean build
 
-build: build-files-move-app build-nextcloud-image
+build: build-apps build-nextcloud-image
+
+build-apps: build-files-move-app build-user-saml-app
 
 build-files-move-app:
 	# Build the 'files_mv' NextCloud app
@@ -20,6 +22,19 @@ build-files-move-app:
 			--env BUILD_OWNER=$(shell id -u):$(shell id -g) \
 			python \
 			./files_mv/build.sh ; \
+	fi
+
+build-user-saml-app:
+	# Build the 'user_saml' NextCloud app
+	@mkdir -p "$(BASE_DIR)/build"
+	@if [ ! -f build/user_saml/appinfo/info.xml ] ; then \
+		docker run --rm \
+			--volume "$(BASE_DIR)/src/:/src:ro" \
+			--volume "$(BASE_DIR)/build:/build" \
+			--workdir "/src/" \
+			--env BUILD_OWNER=$(shell id -u):$(shell id -g) \
+			python \
+			./user_saml/build.sh ; \
 	fi
 
 build-nextcloud-image:
@@ -52,4 +67,4 @@ validate:
 		fi ;\
 	done
 
-.PHONY: all build build-files-move-app build-nextcloud-image clean validate
+.PHONY: all build build-apps build-files-move-app build-user-saml-app build-nextcloud-image clean validate

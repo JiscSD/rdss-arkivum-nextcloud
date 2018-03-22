@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Enable the user_saml app, which implements Shibboleth integration
+occ app:enable user_saml
+
+# Read content of PEM files into exported variables for use in sql template
+export SHIB_IDP_CERT="$(cat "${SHIB_IDP_CERT_FILE}")"
+export SHIB_SP_CERT="$(cat "${SHIB_SP_CERT_FILE}")"
+export SHIB_SP_KEY="$(cat "${SHIB_SP_KEY_FILE}")"
+
+# Use EnvPlate to create an SQL script to insert all required fields into the
+# nextcloud database.
+cp -p /etc/nextcloud/user_saml.sql.template /tmp/user_saml.sql \
+ && ep /tmp/user_saml.sql \
+ && mysql --host="${DB_HOST:-mysql}" \
+       --user="${DB_USER:-root}" \
+       --password="${DB_PASSWORD:-12345}" \
+       --port="${DB_PORT:-3306}" \
+       "${DB_NAME:-nextcloud}" \
+       < /tmp/user_saml.sql
+echo "Updated Shibboleth configuration from template."

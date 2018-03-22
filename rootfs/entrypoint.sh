@@ -66,6 +66,12 @@ configure_nextcloud()
 
     # Disables the "deleted files app"
     occ app:disable files_trashbin
+
+    # Configure Shibboleth integration, if enabled
+    if [ -n "${SHIBBOLETH_AUTHENTICATION}" ] ; then
+        echo "Shibboleth enabled, configuring..."
+        /usr/local/bin/nextcloud-shibboleth
+    fi
 }
 
 configure_nginx()

@@ -83,6 +83,13 @@ $CONFIG = array (
     1 => '*',
   ),
 
+  # Reverse Proxying (e.g. for SSL)
+  'trusted_proxies' => array (
+    0 => '${PROXY_HOST:-""}',
+  ),
+  'overwriteprotocol' => '${HTTP_PROTOCOL:-http}',
+  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}',
+
   # Logging
   'logtimezone' => 'Etc/UTC',
   'logdateformat' => 'Y-m-d H:i:s',

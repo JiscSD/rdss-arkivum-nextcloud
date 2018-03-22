@@ -34,6 +34,7 @@ RUN apk -U upgrade \
     libressl \
     ca-certificates \
     libsmbclient \
+    mysql-client \
     sudo \
     tzdata \
  && pecl install \

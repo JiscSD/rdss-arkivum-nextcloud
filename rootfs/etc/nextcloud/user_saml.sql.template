@@ -1,0 +1,133 @@
+
+--
+-- Basic app config
+--
+
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'enabled', 'yes');
+
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'installed_version', '1.4.2');
+
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'type', 'saml');
+
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'types', 'authentication');
+
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'general-require_provisioned_account', '0');
+
+--
+-- Shibboleth settings
+--
+
+-- Group id to interpret as administrator. Default is "preservation-admin".
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'general-gid_admin',
+    '${SHIB_ADMIN_GID:-preservation-admin}');
+
+-- Attribute to map as the user's GID. Default is entitlement.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'general-gid_mapping',
+    '${SHIB_ATTR_UID:-urn:oid:1.3.6.1.4.1.5923.1.1.1.7}');
+
+-- Attribute to map as the user's UID. Default is eppn.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'general-uid_mapping',
+    '${SHIB_ATTR_UID:-urn:oid:1.3.6.1.4.1.5923.1.1.1.6}');
+
+-- Attribute to map as the user's email
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'saml-attribute-mapping-email_mapping',
+    '${SHIB_ATTR_EMAIL:-urn:oid:0.9.2342.19200300.100.1.3}');
+
+-- Attribute to map as the user's display name
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'saml-attribute-mapping-displayName_mapping',
+    '${SHIB_ATTR_DISPLAY_NAME:-urn:oid:2.5.4.3}');
+
+-- Entity ID of the IdP to authenticate against. Must be a valid endpoint URL.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'idp-entityId',
+    '${SHIB_IDP_ENTITY_ID:-https://idp.example.ac.uk/idp/shibboleth}');
+
+-- PEM X.509 certificate of IdP to use when verifying messages.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'idp-x509cert',
+    '${SHIB_IDP_CERT:-""}');
+
+-- Target URL of the IdP to send sign on requests to for SSO support.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'idp-singleSignOnService.url',
+    '${SHIB_IDP_SSO_URL:-https://idp.example.ac.uk:4443/idp/profile/SAML2/Redirect/SSO}');
+
+-- Target URL of the IdP to send logout request to for SLO support.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'idp-singleLogoutService.url',
+    '${SHIB_IDP_SLO_URL:-https://idp.example.ac.uk:4443/idp/profile/SAML2/Redirect/SLO}');
+
+-- Whether or not to sign authn requests. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-authnRequestsSigned',
+    '${SHIB_SIGN_AUTHN_REQUESTS:-1}');
+
+-- Whether or not to sign logout requests. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-logoutRequestsSigned',
+    '${SHIB_SIGN_LOGOUT_REQUESTS:-1}');
+
+-- Whether or not to sign logout responses. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-logoutResponseSigned',
+    '${SHIB_SIGN_LOGOUT_RESPONSES:-1}');
+
+-- Whether or not to encrypt name id in logout requests. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-nameIdEncrypted',
+    '${SHIB_ENCRYPT_NAMEID:-1}');
+
+-- Whether or not to sign metadata. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-signMetadata',
+    '${SHIB_SIGN_METADATA:-1}');
+
+-- Whether or not to require assertions from IdP be encrypted. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantAssertionsEncrypted',
+    '${SHIB_WANT_ENCRYPTED_ASSERTIONS:-1}');
+
+-- Whether or not to require assertions from IdP be signed. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantAssertionsSigned',
+    '${SHIB_WANT_SIGNED_ASSERTIONS:-1}');
+
+-- Whether or not to require messages from IdP be signed. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantMessagesSigned',
+    '${SHIB_WANT_SIGNED_MESSAGES:-1}');
+
+-- Whether or not to require name id values from IdP. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantNameId',
+    '${SHIB_WANT_NAMEID:-1}');
+
+-- Whether or not to require name id values from IdP encrypted. Default is false.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantNameIdEncrypted',
+    '${SHIB_WANT_ENCRYPTED_NAMEID:-0}');
+
+-- Whether or not to validate XML signatures. Default is true.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'security-wantXMLValidation',
+    '${SHIB_VALIDATE_XML:-1}');
+
+-- PEM private key of SP to use when encrypting and signing messages.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'sp-privateKey',
+    '${SHIB_SP_KEY:-""}');
+
+-- PEM X.509 certificate of SP to use when encrypting and signing messages.
+REPLACE INTO oc_appconfig (appid, configkey, configvalue) VALUES (
+    'user_saml', 'sp-x509cert',
+    '${SHIB_SP_CERT:-""}');
