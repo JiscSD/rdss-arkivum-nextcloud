@@ -73,6 +73,9 @@ COPY rootfs /
 # Copy the files_mv app to NextCloud
 COPY build/files_mv /nextcloud/apps/files_mv
 
+# Copy the user_saml app to NextCloud
+COPY build/user_saml /nextcloud/apps/user_saml
+
 VOLUME /nextcloud/themes /var/lib/nextcloud
 
 EXPOSE 8888
