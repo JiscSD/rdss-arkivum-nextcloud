@@ -35,6 +35,7 @@ configure_nextcloud()
 
     config_file="/var/lib/nextcloud/config/config.php"
     config_file_md5="${config_file}.template.md5"
+    env_md5="/var/lib/nextcloud/config/env.md5"
     if [ ! -f "${config_file}" ]; then
         # New installation, run the setup
         /usr/local/bin/nextcloud-setup
@@ -51,6 +52,9 @@ configure_nextcloud()
         elif ! md5sum -cs "${config_file_md5}" 2>/dev/null ; then
             echo "Configuration template changed, updating config..."
             update_config=1
+        elif [ "$(env | md5sum)" != "$(cat "${env_md5}" 2>/dev/null)" ] ; then
+            echo "Environment has changed, updating config..."
+            update_config=1
         fi
         if [ $update_config -eq 1 ] ; then
             # Take backup of existing config
@@ -63,6 +67,8 @@ configure_nextcloud()
     fi
     # Record the checksum of the config template for next time
     md5sum "/nextcloud/config/config.php.template" > "${config_file_md5}"
+    # Record the checksum of the env for next time
+    env | md5sum > "${env_md5}"
 
     # Disables the "deleted files app"
     occ app:disable files_trashbin
