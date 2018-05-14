@@ -88,7 +88,7 @@ $CONFIG = array (
     0 => '${PROXY_HOST:-""}',
   ),
   'overwriteprotocol' => '${HTTP_PROTOCOL:-http}',
-  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}',
+  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}:${NEXTCLOUD_PORT:-8888}',
 
   # Logging
   'logtimezone' => 'Etc/UTC',
