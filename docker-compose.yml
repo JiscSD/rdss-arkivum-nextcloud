@@ -42,6 +42,7 @@ services:
             REDIS_HOST: "redis"
             REDIS_PORT: "6379"
             UID: "1000"
+            NEXTCLOUD_PORT: "38888"
         volumes:
             - "nextcloud_data:/var/lib/nextcloud"
             - "nextcloud_themes:/nextcloud/themes"
