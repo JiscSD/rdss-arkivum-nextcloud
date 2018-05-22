@@ -53,7 +53,7 @@ cat > /nextcloud/config/autoconfig.php <<EOF;
   'dbport'        => '${DB_PORT}',
   'dbtableprefix' => 'oc_',
 EOF
-if [[ ! -z "$ADMIN_USER"  ]]; then
+if [ ! -z "$ADMIN_USER"  ]; then
   cat >> /nextcloud/config/autoconfig.php <<EOF;
   # create an administrator account with a random password so that
   # the user does not have to enter anything on first load of ownCloud
@@ -104,6 +104,6 @@ chown -R $UID:$GID /var/lib/nextcloud/config /var/lib/nextcloud/data
 # The firstrunwizard gave Josh all sorts of problems, so disabling that.
 # user_external is what allows ownCloud to use IMAP for login. The contacts
 # and calendar apps are the extensions we really care about here.
-if [[ ! -z "$ADMIN_USER"  ]]; then
+if [ ! -z "$ADMIN_USER"  ]; then
   occ app:disable firstrunwizard
 fi

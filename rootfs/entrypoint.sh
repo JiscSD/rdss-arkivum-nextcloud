@@ -1,5 +1,10 @@
 #!/bin/sh
 
+PHP_CONF_DIR="/etc/php/7.0"
+PHP_FPM_DIR="${PHP_CONF_DIR}/fpm"
+PHP_MODS_AVAILABLE="${PHP_CONF_DIR}/mods-available"
+
+
 configure_directories()
 {
     # Create folders for app data if they don't already exist
@@ -82,25 +87,22 @@ configure_nextcloud()
 
 configure_nginx()
 {
-    # Tweak nginx to match the workers to cpu's
-    procs=$(grep -c processor /proc/cpuinfo)
-    sed -i -e "s/worker_processes 5/worker_processes $procs/" \
-        /etc/nginx/nginx.conf
     # Make nginx run as nextcloud user
-    sed -i -e 's/user nginx;/user nextcloud;/' /etc/nginx/nginx.conf
+    sed -i -e 's/user www-data;/user nextcloud;/' /etc/nginx/nginx.conf
 }
 
 configure_php()
 {
     # Update various config files with environment variable values
-    sed -i -e "s/<APC_SHM_SIZE>/$APC_SHM_SIZE/g" /etc/php.d/apcu.ini \
+    sed -i -e "s/<APC_SHM_SIZE>/$APC_SHM_SIZE/g" "${PHP_MODS_AVAILABLE}/apcu.ini" \
        -e "s/<OPCACHE_MEM_SIZE>/$OPCACHE_MEM_SIZE/g" \
-           /etc/php.d/zend-opcache.ini \
-       -e "s/<MEMORY_LIMIT>/$MEMORY_LIMIT/g" /usr/etc/php-fpm.conf \
+           "${PHP_MODS_AVAILABLE}/opcache.ini" \
+       -e "s/<MEMORY_LIMIT>/$MEMORY_LIMIT/g" "${PHP_FPM_DIR}/php-fpm.conf" \
        -e "s/<UPLOAD_MAX_SIZE>/$UPLOAD_MAX_SIZE/g" \
-           /etc/nginx/nginx.conf /usr/etc/php-fpm.conf \
-       -e "s/error_reporting =.*=/error_reporting = E_ALL/g" /usr/etc/php.ini \
-       -e "s/display_errors =.*/display_errors = stdout/g" /usr/etc/php.ini
+           /etc/nginx/nginx.conf "${PHP_FPM_DIR}/php-fpm.conf" \
+       -e "s#/run/php/#/run/#" "${PHP_FPM_DIR}/php-fpm.conf" \
+       -e "s/error_reporting =.*=/error_reporting = E_ALL/g" "${PHP_FPM_DIR}/php.ini" \
+       -e "s/display_errors =.*/display_errors = stdout/g" "${PHP_FPM_DIR}/php.ini"
 }
 
 configure_users()
@@ -110,9 +112,10 @@ configure_users()
     UID=${UID:-991}
 
     # Ensure nextcloud user exists for given uid and group id
-    getent group "${GID}" || addgroup -S -g "${GID}" nextcloud
+    getent group "${GID}" || addgroup --system --gid "${GID}" nextcloud
     getent passwd "${UID}" || \
-        adduser -G nextcloud -u "${UID}" -S -H -s /bin/false nextcloud
+        adduser --ingroup nextcloud --uid "${UID}" --system \
+                --no-create-home --shell /bin/false nextcloud
 }
 
 configure_users
@@ -122,4 +125,4 @@ configure_nginx
 configure_nextcloud
 
 # Start supervisord and services
-/usr/bin/supervisord -n -c /etc/supervisord.conf
+/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
