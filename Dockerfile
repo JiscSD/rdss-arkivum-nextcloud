@@ -1,15 +1,12 @@
 
-# Use upstream Alpine with NGINX and PHP-FPM image
-FROM boxedcode/alpine-nginx-php-fpm:v1.7.2
+# Use upstream Debian OS image
+FROM debian:stretch-slim
 
-#
-# Fetch and build NextCloud
-#
-
-ARG NEXTCLOUD_VERSION=12.0.6
+ARG NEXTCLOUD_VERSION=12.0.7
 ARG GPG_nextcloud="2880 6A87 8AE4 23A2 8372  792E D758 99B9 A724 937A"
 
-ENV UID=991 GID=991 \
+ENV DEBIAN_FRONTEND=noninteractive \
+    UID=991 GID=991 \
     UPLOAD_MAX_SIZE=10G \
     APC_SHM_SIZE=128M \
     OPCACHE_MEM_SIZE=128 \
@@ -20,31 +17,28 @@ ENV UID=991 GID=991 \
     DB_TYPE=sqlite3 \
     DOMAIN=localhost
 
-RUN apk -U upgrade \
- && apk add -t build-dependencies \
-    gnupg \
-    tar \
-    build-base \
-    autoconf \
-    automake \
-    pcre-dev \
-    libtool \
-    samba-dev \
- && apk add \
-    libressl \
-    ca-certificates \
-    libsmbclient \
-    mysql-client \
+#
+# Install dependencies, nginx, php-fpm, required PHP extensions and NextCloud
+#
+RUN apt update && apt install -y \
+    coreutils \
+    netcat \
+    nginx \
+    php-apcu \
+    php-curl \
+    php-dev \
+    php-fpm \
+    php-gd \
+    php-mbstring \
+    php-mysql \
+    php-pear \
+    php-smbclient \
+    php-xml \
+    php-zip \
     sudo \
-    tzdata \
- && pecl install \
-    smbclient \
-    apcu \
-    redis \
- && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/apcu.so /usr/lib/php/modules/ \
- && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/redis.so /usr/lib/php/modules/ \
- && ln -s $(dirname $(readlink -f /usr/lib/php/modules/opcache.so))/smbclient.so /usr/lib/php/modules/ \
- && rm -f /usr/etc/php-fpm.d/* \
+    supervisor \
+    wget \
+ && pecl install redis \
  && mkdir /nextcloud \
  && cd /tmp \
  && NEXTCLOUD_TARBALL="nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -63,10 +57,11 @@ RUN apk -U upgrade \
  && echo "All seems good, now unpacking ${NEXTCLOUD_TARBALL}..." \
  && tar xjf ${NEXTCLOUD_TARBALL} --strip 1 -C /nextcloud \
  && update-ca-certificates \
- && apk del build-dependencies \
- && rm -rf /var/cache/apk/* /tmp/* /root/.gnupg \
  && wget -q -O /usr/local/bin/ep https://github.com/kreuzwerker/envplate/releases/download/v0.0.8/ep-linux \
- && chmod +x /usr/local/bin/ep
+ && chmod +x /usr/local/bin/ep \
+ && apt remove -y php-dev php-pear wget \
+ && apt -y autoremove \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /root/.gnupg
 
 COPY rootfs /
 
@@ -79,6 +74,8 @@ COPY build/user_saml /nextcloud/apps/user_saml
 VOLUME /nextcloud/themes /var/lib/nextcloud
 
 EXPOSE 8888
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 LABEL description="A server software for creating file hosting services" \
       nextcloud="Nextcloud v${NEXTCLOUD_VERSION}" \

@@ -33,8 +33,8 @@ $CONFIG = array (
   'loglevel' => getenv('NC_LOG_LEVEL') ?: 1,
 
   # Proxy overwrite
-  'overwritehost' => getenv('NC_PROXY_HOSTNAME') ?: '',
-  'overwriteprotocol' => getenv('NC_PROXY_PROTOCOL') ?: 'http',
+  'overwriteprotocol' => '${HTTP_PROTOCOL:-http}',
+  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}:${NEXTCLOUD_PORT:-8888}',
 
   #
   # Installed settings - you shouldn't need to change these, ever
@@ -87,8 +87,6 @@ $CONFIG = array (
   'trusted_proxies' => array (
     0 => '${PROXY_HOST:-""}',
   ),
-  'overwriteprotocol' => '${HTTP_PROTOCOL:-http}',
-  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}:${NEXTCLOUD_PORT:-8888}',
 
   # Logging
   'logtimezone' => 'Etc/UTC',
