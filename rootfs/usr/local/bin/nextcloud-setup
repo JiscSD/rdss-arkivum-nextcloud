@@ -74,5 +74,12 @@ done
 # Add a wildcard record for allowed domains
 occ config:system:set trusted_domains 1 --value="*"
 
-# Rescan file system
-occ files:scan --all &
+if [ -z "${SCAN_IN_FOREGROUND}" ] ; then
+	# Rescan file system in background
+	echo "Background scan of configured file systems started."
+	occ files:scan --all &
+else
+	# Rescan file system in the foreground, blocking until it completes
+	echo "Starting foreground scan of configured file systems..."
+	occ files:scan --all
+fi
