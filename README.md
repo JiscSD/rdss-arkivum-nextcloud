@@ -30,12 +30,11 @@ For example:
 Environment Variables
 -----------------------
 
-Most of the environment variables for this image are inherited from and [defined by `wonderfall/nextcloud`](https://github.com/Wonderfall/dockerfiles/tree/master/nextcloud#environment-variables).
-
-In addition, the following are also supported:
+The following environment variables are supported:
 
 | Variable | Description | Default Value |
 |---|---|---|
+| `SCAN_IN_FOREGROUND` | If set to `"true"`, the initial scan of configured file systems will be run as a foreground task, otherwise the scan will be performed as a background task. Running in the foreground will block and prevent NextCloud startup from completing until the scan is finished. | Undefined, causing the scan to be run in the background. |
 | `DB_PORT` | Specifies the port to use to connect to the MySQL database server. | `3306` |
 | `EXTERNAL_STORAGES` | Specifies the external storage location(s) that should be added as part of the set up. See [External Storage](#external-storage) below. | `""` |
 | `HTTP_PROTOCOL` | Overrides NextCloud's own detection of what scheme it should use. Set to `https` if proxying NextCloud behind a HTTPS server. | `http` |
