@@ -1,6 +1,6 @@
 
-# Use upstream Debian OS image
-FROM debian:stretch-slim
+# Use library php:7-fpm-stretch image
+FROM php:7.1-fpm-stretch
 
 ARG NEXTCLOUD_VERSION=12.0.7
 ARG GPG_nextcloud="2880 6A87 8AE4 23A2 8372  792E D758 99B9 A724 937A"
@@ -22,23 +22,27 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #
 RUN apt update && apt install -y \
     coreutils \
+    default-mysql-client \
+    gpg \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng-dev \
+    libsmbclient \
+    libsmbclient-dev \
+    libzip4 \
+    libzip-dev \
     netcat \
     nginx \
-    php-apcu \
-    php-curl \
-    php-dev \
-    php-fpm \
-    php-gd \
-    php-mbstring \
-    php-mysql \
-    php-pear \
-    php-smbclient \
-    php-xml \
-    php-zip \
     sudo \
     supervisor \
     wget \
- && pecl install redis \
+ && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+ && docker-php-ext-configure mcrypt \
+ && docker-php-ext-install -j$(nproc) gd mcrypt pcntl pdo_mysql \
+ && pecl install apcu redis smbclient zip \
+ && docker-php-ext-enable --ini-name 0-apcu.ini apcu \
+ && docker-php-ext-enable redis smbclient zip \
  && mkdir /nextcloud \
  && cd /tmp \
  && NEXTCLOUD_TARBALL="nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -59,7 +63,7 @@ RUN apt update && apt install -y \
  && update-ca-certificates \
  && wget -q -O /usr/local/bin/ep https://github.com/kreuzwerker/envplate/releases/download/v0.0.8/ep-linux \
  && chmod +x /usr/local/bin/ep \
- && apt remove -y php-dev php-pear wget \
+ && apt remove -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libsmbclient-dev libzip-dev wget \
  && apt -y autoremove \
  && rm -rf /var/lib/apt/lists/* /tmp/* /root/.gnupg
 

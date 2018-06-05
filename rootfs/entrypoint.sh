@@ -1,9 +1,6 @@
 #!/bin/sh
 
-PHP_CONF_DIR="/etc/php/7.0"
-PHP_FPM_DIR="${PHP_CONF_DIR}/fpm"
-PHP_MODS_AVAILABLE="${PHP_CONF_DIR}/mods-available"
-
+PHP_CONF_DIR="/usr/local/etc"
 
 configure_directories()
 {
@@ -88,21 +85,21 @@ configure_nextcloud()
 configure_nginx()
 {
     # Make nginx run as nextcloud user
-    sed -i -e 's/user www-data;/user nextcloud;/' /etc/nginx/nginx.conf
+    sed -i -e 's#user www-data;#user nextcloud;#' /etc/nginx/nginx.conf
+    # Log to stderr and stdout
+    ln -sf /dev/stdout /var/log/nginx/access.log
+    ln -sf /dev/stderr /var/log/nginx/error.log
 }
 
 configure_php()
 {
     # Update various config files with environment variable values
-    sed -i -e "s/<APC_SHM_SIZE>/$APC_SHM_SIZE/g" "${PHP_MODS_AVAILABLE}/apcu.ini" \
-       -e "s/<OPCACHE_MEM_SIZE>/$OPCACHE_MEM_SIZE/g" \
-           "${PHP_MODS_AVAILABLE}/opcache.ini" \
-       -e "s/<MEMORY_LIMIT>/$MEMORY_LIMIT/g" "${PHP_FPM_DIR}/php-fpm.conf" \
+    php_apcu_ini="${PHP_CONF_DIR}/php/conf.d/1-apcu.ini"
+    php_fpm_conf="${PHP_CONF_DIR}/php-fpm.conf"
+    sed -i -e "s/<MEMORY_LIMIT>/$MEMORY_LIMIT/g" \
+           "${php_apcu_ini}" "${php_fpm_conf}" \
        -e "s/<UPLOAD_MAX_SIZE>/$UPLOAD_MAX_SIZE/g" \
-           /etc/nginx/nginx.conf "${PHP_FPM_DIR}/php-fpm.conf" \
-       -e "s#/run/php/#/run/#" "${PHP_FPM_DIR}/php-fpm.conf" \
-       -e "s/error_reporting =.*=/error_reporting = E_ALL/g" "${PHP_FPM_DIR}/php.ini" \
-       -e "s/display_errors =.*/display_errors = stdout/g" "${PHP_FPM_DIR}/php.ini"
+           /etc/nginx/nginx.conf "${php_fpm_conf}"
 }
 
 configure_users()
