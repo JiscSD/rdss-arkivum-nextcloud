@@ -37,7 +37,7 @@ The following environment variables are supported:
 | `SCAN_IN_FOREGROUND` | If set to `"true"`, the initial scan of configured file systems will be run as a foreground task, otherwise the scan will be performed as a background task. Running in the foreground will block and prevent NextCloud startup from completing until the scan is finished. | Undefined, causing the scan to be run in the background. |
 | `DB_PORT` | Specifies the port to use to connect to the MySQL database server. | `3306` |
 | `EXTERNAL_STORAGES` | Specifies the external storage location(s) that should be added as part of the set up. See [External Storage](#external-storage) below. | `""` |
-| `HTTP_PROTOCOL` | Overrides NextCloud's own detection of what scheme it should use. Set to `https` if proxying NextCloud behind a HTTPS server. | `http` |
+| `HTTP_PROTOCOL` | Overrides NextCloud's own detection of what scheme it should use. Set to `https` if proxying NextCloud behind a HTTPS server. | `''` |
 | `NC_LOG_LEVEL` | The level to log messages for. Valid values are one of the following numbers: <ul><li>0: DEBUG - all activity, the most detailed logging</li><li>1: INFO - activity such as user logins and file activities, plus warnings, errors and fatal errors</li><li>2: WARN - operations succeed, but with warnings of potential problems, plus errors and fatal errors</li><li>3: ERROR - an operation fails, but other services and operations continue, plus fatal errors</li><li>4: FATAL - the server stops</li></ul> | `1` |
 | `NC_MAIL_DOMAIN` | The domain to use when sending mails from NextCloud. | `localhost` |
 | `NC_MAIL_FROM_ADDRESS` | The `from` address to send emails from, without the "@" or domain | `nextcloud-noreply` |
@@ -48,8 +48,8 @@ The following environment variables are supported:
 | `NC_MAIL_SECURE` | What security mechanism to use when sending mail. Valid values are `ssl`, `tls` or none. | none |
 | `NC_MAIL_TIMEOUT` | The timeout to use when sending mail, in seconds. | `10` |
 | `NC_MAIL_USER` | The SMTP username to use when sending mail | none |
-| `NEXTCLOUD_HOST` | Overrides NextCloud's own detection of what its hostname is. Use if using a proxy and you're not getting the right URLs. | `'nextcloud.example.ac.uk'` |
-| `NEXTCLOUD_PORT` | Overrides NextCloud's own detection of what its port is. Use if using a proxy and you're not getting the right URLs. | `'8888'` |
+| `NEXTCLOUD_HOST` | Overrides NextCloud's own detection of what its hostname is. Use if using a proxy and you're not getting the right URLs. | `''` |
+| `NEXTCLOUD_PORT` | Overrides NextCloud's own detection of what its port is. Use if using a proxy and you're not getting the right URLs. | `''` |
 | `PROXY_HOST` | The hostname of the HTTP proxy server in front of NextCloud. Used for reverse proxying. | `''` |
 | `REDIS_HOST` | The hostname of the Redis server to use for caching. | `redis` |
 | `REDIS_PORT` | The port of the Redis server to use for caching. | `6379` |
