@@ -33,8 +33,8 @@ $CONFIG = array (
   'loglevel' => getenv('NC_LOG_LEVEL') ?: 1,
 
   # Proxy overwrite
-  'overwriteprotocol' => '${HTTP_PROTOCOL:-http}',
-  'overwritehost' => '${NEXTCLOUD_HOST:-nextcloud.example.ac.uk}:${NEXTCLOUD_PORT:-8888}',
+  'overwriteprotocol' => getenv('HTTP_PROTOCOL') ?: '',
+  'overwritehost' => getenv('NEXTCLOUD_HOST') ?: '',
 
   #
   # Installed settings - you shouldn't need to change these, ever
@@ -100,4 +100,13 @@ $CONFIG = array (
   'filesystem_check_changes' => 1,
   'overwrite.cli.url' => 'http://localhost',
 );
+
+# Append the explicit port to the explicit host, if any
+if ($CONFIG['overwritehost'] != '') {
+  $nc_port = getenv('NEXTCLOUD_PORT') ?: '';
+  if ($nc_port != '') {
+    $CONFIG['overwritehost'] .= ':' . $nc_port;
+  }
+}
+
 ?>
