@@ -105,7 +105,11 @@ $CONFIG = array (
 if ($CONFIG['overwritehost'] != '') {
   $nc_port = getenv('NEXTCLOUD_PORT') ?: '';
   if ($nc_port != '') {
-    $CONFIG['overwritehost'] .= ':' . $nc_port;
+    # Only append port if not default for protocol
+    if (($CONFIG['overwriteprotocol'] == 'http' && $nc_port != '80') ||
+        ($CONFIG['overwriteprotocol'] == 'https' && $nc_port != '443')) {
+      $CONFIG['overwritehost'] .= ':' . $nc_port;
+    }
   }
 }
 
