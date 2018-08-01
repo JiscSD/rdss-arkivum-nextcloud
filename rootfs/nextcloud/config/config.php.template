@@ -102,9 +102,11 @@ $CONFIG = array (
 );
 
 # Append the explicit port to the explicit host, if any
+# Exceptions: When (HTTP_PROTOCOL,NEXTCLOUD_PORT) is (http,80) or (https,443)
 if ($CONFIG['overwritehost'] != '') {
   $nc_port = getenv('NEXTCLOUD_PORT') ?: '';
-  if ($nc_port != '') {
+  $nc_proto = getenv('HTTP_PROTOCOL') ?: '';
+  if ($nc_port != '' and !(($nc_port == '443' and  $nc_proto == 'https') or ($nc_port == '80' and  $nc_proto == 'http'))) {
     $CONFIG['overwritehost'] .= ':' . $nc_port;
   }
 }
